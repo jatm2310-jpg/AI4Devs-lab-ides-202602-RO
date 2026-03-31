@@ -1,191 +1,433 @@
-# LTI - Talent Tracking System  | EN
+# AI4Devs - Talent Tracking System
 
-This project is a full-stack application with a React frontend and an Express backend using Prisma as an ORM. The frontend is initiated with Create React App, and the backend is written in TypeScript.
+Aplicacion full stack para gestion de candidatos construida con React en el frontend y Node.js + Express en el backend. El proyecto usa PostgreSQL como base de datos relacional y Prisma como ORM.
 
-## Directory and File Explanation
+La solucion implementa un flujo de alta de candidatos con validacion de datos, carga de CV, sugerencias de campos, listado paginado y descarga protegida de archivos.
 
-- `backend/`: Contains the server-side code written in Node.js.
-  - `src/`: Contains the source code for the backend.
-    - `index.ts`:  The entry point for the backend server.
-  - `prisma/`: Contains the Prisma schema file for ORM.
-  - `tsconfig.json`: TypeScript configuration file.
-  - `.env`: Contains the environment variables.
-- `frontend/`: Contains the client-side code written in React.
-  - `src/`: Contains the source code for the frontend.
-  - `public/`: Contains static files such as the HTML file and images.
-  - `build/`: Contains the production-ready build of the frontend.
-- `docker-compose.yml`: Contains the Docker Compose configuration to manage your application's services.
-- `README.md`: This file contains information about the project and instructions on how to run it.
+## Tabla de contenidos
 
-## Project Structure
+- Vision general
+- Stack tecnologico
+- Funcionalidades principales
+- Arquitectura del proyecto
+- Estructura de carpetas
+- Requisitos previos
+- Configuracion local
+- Variables de entorno
+- Base de datos y Prisma
+- Ejecucion del proyecto
+- Scripts disponibles
+- API disponible
+- Testing y build
+- Documentacion funcional y prompts
+- Buenas practicas y notas operativas
+- Proximos pasos recomendados
 
-The project is divided into two main directories: `frontend` and `backend`.
+## Vision general
+
+Este repositorio contiene un sistema de seguimiento de talento orientado a reclutamiento. Actualmente permite:
+
+- registrar candidatos desde una interfaz web,
+- validar datos obligatorios en cliente y servidor,
+- cargar CV en formato PDF o Word,
+- consultar sugerencias de campos basadas en datos recientes,
+- listar candidatos con paginacion,
+- descargar CV mediante una ruta protegida.
+
+## Stack tecnologico
 
 ### Frontend
 
-The frontend is a React application, and its main files are located in the `src` directory. The `public` directory contains static assets, and the build directory contains the production `build` of the application.
+- React 18
+- TypeScript
+- Create React App
+- Testing Library
+- Jest a traves de react-scripts
 
 ### Backend
 
-El backend es una aplicación Express escrita en TypeScript.
-- The `src` directory contains the source code
-- The `prisma` directory contains the Prisma schema.
+- Node.js
+- Express
+- TypeScript
+- Prisma ORM
+- Multer para subida de archivos
+- CORS
+- Jest
+- Supertest
 
-## First steps
+### Base de datos e infraestructura
 
-To get started with this project, follow these steps:
+- PostgreSQL
+- Docker Compose para entorno local de base de datos
 
-1. Clone the repo
-2. install the dependencias for frontend and backend
-```sh
-cd frontend
+## Funcionalidades principales
+
+- Alta de candidatos con los campos:
+  - nombre,
+  - apellido,
+  - correo electronico,
+  - telefono,
+  - direccion,
+  - educacion,
+  - experiencia,
+  - CV opcional.
+- Validacion de email y campos requeridos.
+- Control de tipo de archivo CV: PDF, DOC, DOCX.
+- Limite de tamano de archivo CV: 5 MB.
+- Listado paginado de candidatos.
+- Descarga protegida de CV usando cabecera `x-recruiter-key`.
+- Sugerencias para educacion y experiencia a partir de registros recientes.
+
+## Arquitectura del proyecto
+
+El proyecto esta dividido en dos aplicaciones independientes:
+
+- `frontend/`: interfaz web para reclutamiento.
+- `backend/`: API REST y acceso a datos.
+
+El frontend consume la API del backend por HTTP. El backend persiste la informacion en PostgreSQL mediante Prisma y almacena los archivos subidos en disco dentro de la carpeta `backend/uploads`.
+
+## Estructura de carpetas
+
+```text
+.
+|-- backend/
+|   |-- prisma/
+|   |   `-- schema.prisma
+|   |-- src/
+|   |   |-- index.ts
+|   |   `-- tests/
+|   |       `-- app.test.ts
+|   |-- package.json
+|   `-- tsconfig.json
+|-- frontend/
+|   |-- public/
+|   |-- src/
+|   |   |-- App.tsx
+|   |   |-- App.css
+|   |   `-- tests/
+|   |       `-- App.test.tsx
+|   |-- package.json
+|   `-- tsconfig.json
+|-- docker-compose.yml
+`-- README.md
+```
+
+## Requisitos previos
+
+Antes de ejecutar el proyecto, asegurate de tener instalado:
+
+- Node.js 18 o superior recomendado.
+- npm.
+- Docker Desktop o Docker Engine con Docker Compose.
+
+## Configuracion local
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/LIDR-academy/AI4Devs-lab-ides-202602-RO.git
+cd AI4Devs-lab-ides-202602-RO
+```
+
+### 2. Instalar dependencias
+
+```bash
+cd backend
 npm install
 
-cd ../backend
+cd ../frontend
 npm install
 ```
-3. Build the backend server
-```
-cd backend
-npm run build
-````
-4. Run the backend server
-```
-cd backend
-npm run dev 
+
+### 3. Configurar variables de entorno del backend
+
+El backend utiliza un archivo `.env` con la conexion a PostgreSQL y la llave de acceso para descarga de CV.
+
+Variables esperadas:
+
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `DB_PORT`
+- `DATABASE_URL`
+- `RECRUITER_ACCESS_KEY`
+
+Ejemplo de configuracion:
+
+```env
+DB_USER=LTIdbUser
+DB_PASSWORD=your_password
+DB_NAME=LTIdb
+DB_PORT=5433
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}"
+RECRUITER_ACCESS_KEY=dev-recruiter-key
 ```
 
-5. In a new terminal window, build the frontend server:
+### 4. Levantar la base de datos
+
+Desde la raiz del proyecto:
+
+```bash
+docker compose up -d
 ```
-cd frontend
-npm run build
+
+La base de datos queda expuesta localmente en:
+
+- Host: `localhost`
+- Port: `5433`
+- Motor: PostgreSQL
+
+Para detenerla:
+
+```bash
+docker compose down
 ```
-6. Start the frontend server
+
+## Variables de entorno
+
+### Backend
+
+| Variable | Descripcion |
+|---|---|
+| `DB_USER` | Usuario de PostgreSQL |
+| `DB_PASSWORD` | Password de PostgreSQL |
+| `DB_NAME` | Nombre de la base de datos |
+| `DB_PORT` | Puerto local del contenedor PostgreSQL |
+| `DATABASE_URL` | Cadena de conexion usada por Prisma |
+| `RECRUITER_ACCESS_KEY` | Llave para proteger la descarga de CV |
+
+### Frontend
+
+El frontend funciona sin configuracion adicional, pero admite estas variables opcionales:
+
+| Variable | Descripcion |
+|---|---|
+| `REACT_APP_API_URL` | URL base del backend. Por defecto: `http://localhost:3010` |
+| `REACT_APP_RECRUITER_ACCESS_KEY` | Llave usada por el cliente para la descarga de CV |
+
+Nota: exponer `REACT_APP_RECRUITER_ACCESS_KEY` en cliente solo es aceptable para desarrollo. En produccion deberia sustituirse por autenticacion real del lado servidor.
+
+## Base de datos y Prisma
+
+El esquema Prisma define actualmente dos modelos:
+
+- `User`
+- `Candidate`
+
+El modelo `Candidate` almacena informacion de perfil, metadatos del CV y fecha de creacion.
+
+Para generar el cliente Prisma:
+
+```bash
+cd backend
+npx prisma generate
 ```
+
+Para sincronizar el esquema con la base de datos en desarrollo:
+
+```bash
+cd backend
+npx prisma db push
+```
+
+## Ejecucion del proyecto
+
+### Backend
+
+```bash
+cd backend
+npm run dev
+```
+
+La API quedara disponible en:
+
+- `http://localhost:3010`
+
+### Frontend
+
+En otra terminal:
+
+```bash
 cd frontend
 npm start
 ```
 
-The backend server will be running at http://localhost:3010, and the frontend will be available at http://localhost:3000.
+La aplicacion quedara disponible en:
 
-## Docker y PostgreSQL
+- `http://localhost:3000`
 
-This project uses Docker to run a PostgreSQL database. Here's how to get it up and running:
-
-Install Docker on your machine if you haven't done so already. You can download it here.
-Navigate to the root directory of the project in your terminal.
-Run the following command to start the Docker container:
-```
-docker-compose up -d
-```
-This will start a PostgreSQL database in a Docker container. The -d flag runs the container in detached mode, meaning it runs in the background.
-
-To access the PostgreSQL database, you can use any PostgreSQL client with the following connection details:
- - Host: localhost
- - Port: 5432
- - User: postgres
- - Password: password
- - Database: mydatabase
-
-Please replace User, Password, and Database with the actual user, password, and database name specified in your .env file.
-
-To stop the Docker container, run the following command:
-```
-docker-compose down
-```
-
-# LTI - Sistema de Seguimiento de Talento  | ES
-
-Este proyecto es una aplicación full-stack con un frontend en React y un backend en Express usando Prisma como ORM. El frontend se inicia con Create React App y el backend está escrito en TypeScript.
-
-## Explicación de Directorios y Archivos
-
-- `backend/`: Contiene el código del lado del servidor escrito en Node.js.
-  - `src/`: Contiene el código fuente para el backend.
-    - `index.ts`: El punto de entrada para el servidor backend.
-  - `prisma/`: Contiene el archivo de esquema de Prisma para ORM.
-  - `tsconfig.json`: Archivo de configuración de TypeScript.
-  - `.env`: Contiene las variables de entorno.
-- `frontend/`: Contiene el código del lado del cliente escrito en React.
-  - `src/`: Contiene el código fuente para el frontend.
-  - `public/`: Contiene archivos estáticos como el archivo HTML e imágenes.
-  - `build/`: Contiene la construcción lista para producción del frontend.
-- `docker-compose.yml`: Contiene la configuración de Docker Compose para gestionar los servicios de tu aplicación.
-- `README.md`: Este archivo contiene información sobre el proyecto e instrucciones sobre cómo ejecutarlo.
-
-## Estructura del Proyecto
-
-El proyecto está dividido en dos directorios principales: `frontend` y `backend`.
-
-### Frontend
-
-El frontend es una aplicación React y sus archivos principales están ubicados en el directorio `src`. El directorio `public` contiene activos estáticos y el directorio `build` contiene la construcción de producción de la aplicación.
+## Scripts disponibles
 
 ### Backend
 
-El backend es una aplicación Express escrita en TypeScript.
-- El directorio `src` contiene el código fuente
-- El directorio `prisma` contiene el esquema de Prisma.
-
-## Primeros Pasos
-
-Para comenzar con este proyecto, sigue estos pasos:
-
-1. Clona el repositorio.
-2. Instala las dependencias para el frontend y el backend:
-```sh
-cd frontend
-npm install
-
-cd ../backend
-npm install
-```
-3. Construye el servidor backend:
-```
-cd backend
+```bash
+npm run dev
 npm run build
-````
-4. Inicia el servidor backend:
-```
-cd backend
-npm run dev 
-```
-
-5. En una nueva ventana de terminal, construye el servidor frontend:
-```
-cd frontend
-npm run build
-```
-6. Inicia el servidor frontend:
-```
-cd frontend
 npm start
+npm test
+npm run prisma:init
+npm run prisma:generate
+npm run start:prod
 ```
 
-El servidor backend estará corriendo en http://localhost:3010 y el frontend estará disponible en http://localhost:3000.
+Descripcion:
 
-## Docker y PostgreSQL
+- `npm run dev`: arranca el backend en modo desarrollo con recarga.
+- `npm run build`: compila TypeScript a `dist/`.
+- `npm start`: ejecuta la version compilada.
+- `npm test`: ejecuta tests con Jest.
+- `npm run prisma:init`: inicializa Prisma.
+- `npm run prisma:generate`: genera el cliente Prisma.
+- `npm run start:prod`: build + arranque en modo produccion.
 
-Este proyecto usa Docker para ejecutar una base de datos PostgreSQL. Así es cómo ponerlo en marcha:
+### Frontend
 
-Instala Docker en tu máquina si aún no lo has hecho. Puedes descargarlo desde aquí.
-Navega al directorio raíz del proyecto en tu terminal.
-Ejecuta el siguiente comando para iniciar el contenedor Docker:
+```bash
+npm start
+npm run build
+npm test
 ```
-docker-compose up -d
-```
-Esto iniciará una base de datos PostgreSQL en un contenedor Docker. La bandera -d corre el contenedor en modo separado, lo que significa que se ejecuta en segundo plano.
 
-Para acceder a la base de datos PostgreSQL, puedes usar cualquier cliente PostgreSQL con los siguientes detalles de conexión:
- - Host: localhost
- - Port: 5432
- - User: postgres
- - Password: password
- - Database: mydatabase
+Descripcion:
 
-Por favor, reemplaza User, Password y Database con el usuario, la contraseña y el nombre de la base de datos reales especificados en tu archivo .env.
+- `npm start`: arranca la aplicacion React en desarrollo.
+- `npm run build`: genera el bundle de produccion.
+- `npm test`: ejecuta tests del frontend con `react-scripts`.
 
-Para detener el contenedor Docker, ejecuta el siguiente comando:
+## API disponible
+
+### `GET /`
+
+Health check simple del backend.
+
+Respuesta esperada:
+
+```text
+ATS backend running
 ```
-docker-compose down
+
+### `GET /api/candidates/suggestions`
+
+Devuelve sugerencias de `education` y `experience` a partir de registros recientes.
+
+### `GET /api/candidates?page=1&limit=8`
+
+Devuelve listado paginado de candidatos.
+
+Ejemplo de respuesta:
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "firstName": "Ana",
+      "lastName": "Lopez",
+      "email": "ana@example.com",
+      "phone": "+34111111111",
+      "address": "Calle 123",
+      "education": "Ingenieria",
+      "experience": "3 anos en seleccion",
+      "cvFileName": "cv.pdf",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "hasCv": true
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "page": 1,
+    "limit": 8,
+    "totalPages": 1
+  }
+}
 ```
+
+### `POST /api/candidates`
+
+Crea un nuevo candidato mediante `multipart/form-data`.
+
+Campos admitidos:
+
+- `firstName`
+- `lastName`
+- `email`
+- `phone`
+- `address`
+- `education`
+- `experience`
+- `cv`
+
+### `GET /api/candidates/:id/cv`
+
+Descarga el CV del candidato. Requiere la cabecera:
+
+```http
+x-recruiter-key: dev-recruiter-key
+```
+
+## Testing y build
+
+### Ejecutar tests
+
+Backend:
+
+```bash
+cd backend
+npm test
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm test
+```
+
+### Generar builds
+
+Backend:
+
+```bash
+cd backend
+npm run build
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run build
+```
+
+## Documentacion funcional y prompts
+
+El proyecto incluye documentacion funcional y artefactos de prompt engineering en la carpeta `docs/`.
+
+### Historias de usuario
+
+- `docs/user-stories/US-001-add-candidate.md`: historia de usuario refinada para la funcionalidad de alta de candidato.
+
+### Prompts y meta-prompts
+
+- `docs/ai-prompts/add-candidate-implementation.prompt.md`: prompt reutilizable para implementar la solucion.
+- `docs/ai-prompts/add-candidate-refinement.meta-prompt.md`: meta-prompt para refinar historias de usuario o prompts tecnicos futuros.
+
+Estos documentos estan pensados para mantener alineadas la vision funcional, la implementacion tecnica y futuras iteraciones asistidas por AI.
+
+## Buenas practicas y notas operativas
+
+- No subas secretos reales al repositorio.
+- No uses la llave `RECRUITER_ACCESS_KEY` expuesta en frontend en un entorno productivo.
+- Manten sincronizado el esquema Prisma con la base de datos usando `prisma db push` o migraciones cuando el proyecto evolucione.
+- La carpeta `backend/uploads` debe considerarse almacenamiento local de desarrollo. Para produccion conviene mover los archivos a almacenamiento externo.
+- El puerto local de PostgreSQL es `5433`, no `5432`, para evitar conflictos comunes con instalaciones locales existentes.
+- El frontend usa Create React App. Actualmente funciona correctamente, pero CRA ya no es una base especialmente moderna para proyectos nuevos.
+
+## Proximos pasos recomendados
+
+- Sustituir la descarga protegida por llave estatica por autenticacion/autorizacion real.
+- Incorporar migraciones Prisma versionadas.
+- Anadir documentacion OpenAPI si se va a exponer la API a terceros.
+- Integrar almacenamiento externo para CV.
+- Anadir pipeline CI para test y build automaticos.

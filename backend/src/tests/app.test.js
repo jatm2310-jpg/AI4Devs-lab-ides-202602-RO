@@ -15,9 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const index_1 = require("../index");
 describe('GET /', () => {
-    it('responds with Hello World!', () => __awaiter(void 0, void 0, void 0, function* () {
+    it('responds with backend status message', () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(index_1.app).get('/');
         expect(response.statusCode).toBe(200);
-        expect(response.text).toBe('Hello World!');
+        expect(response.text).toBe('ATS backend running');
     }));
 });
