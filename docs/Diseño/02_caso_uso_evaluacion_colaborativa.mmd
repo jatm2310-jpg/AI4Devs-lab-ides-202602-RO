@@ -1,0 +1,9 @@
+﻿flowchart LR
+A[Recruiter] --> U1[Asignar evaluadores]
+B[Entrevistador] --> U2[Completar scorecard]
+C[Hiring Manager] --> U3[Revisar consenso]
+D[Sistema ATS] --> U4[Calcular score agregado]
+U2 --> U4
+U4 --> U3
+U3 --> U5[Decidir avanzar o rechazar]
+

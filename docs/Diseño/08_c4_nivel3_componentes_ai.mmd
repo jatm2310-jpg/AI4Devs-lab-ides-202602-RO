@@ -1,0 +1,15 @@
+﻿flowchart TB
+API[ATS Backend] --> AIO[AI Orchestrator]
+
+AIO --> P1[Resume Parser]
+AIO --> P2[Matching Scoring]
+AIO --> P3[Candidate Summarizer]
+AIO --> P4[Feedback Draft Assistant]
+AIO --> P5[Explainability Engine]
+AIO --> P6[Prompt Policy Guardrails]
+
+P1 --> STORE[(Parsed Profiles)]
+P2 --> FEAT[(Feature Store)]
+P5 --> EVD[(Decision Evidence Log)]
+P6 --> SAFE[(Safety Filters)]
+

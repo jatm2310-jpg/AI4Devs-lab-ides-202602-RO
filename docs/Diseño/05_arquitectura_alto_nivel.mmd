@@ -1,0 +1,13 @@
+﻿flowchart LR
+U[Recruiter Hiring Manager] --> FE[Frontend Web]
+FE --> API[ATS API Monolito Modular]
+API --> DB[(PostgreSQL)]
+API --> FS[(Object Storage CV)]
+API --> MQ[(Event Queue)]
+MQ --> WF[Workflow Engine]
+WF --> INT[Email Calendar Job Boards]
+API --> AI[AI Orchestrator]
+AI --> LLM[LLM Provider]
+AI --> EMB[Embedding Search]
+API --> AUD[Audit Log Service]
+

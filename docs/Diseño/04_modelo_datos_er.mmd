@@ -1,0 +1,17 @@
+﻿erDiagram
+ORGANIZATION ||--o{ USER : has
+ORGANIZATION ||--o{ JOB : has
+ORGANIZATION ||--o{ CANDIDATE : has
+ORGANIZATION ||--o{ WORKFLOW_RULE : has
+ORGANIZATION ||--o{ AUDIT_EVENT : records
+
+JOB ||--o{ PIPELINE_STAGE : defines
+JOB ||--o{ APPLICATION : receives
+CANDIDATE ||--o{ RESUME : owns
+CANDIDATE ||--o{ APPLICATION : submits
+
+PIPELINE_STAGE ||--o{ APPLICATION : current_stage
+APPLICATION ||--o{ INTERVIEW : includes
+INTERVIEW ||--o{ FEEDBACK : generates
+USER ||--o{ FEEDBACK : writes
+

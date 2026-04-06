@@ -1,0 +1,12 @@
+﻿flowchart LR
+U[Usuarios internos] --> WEB[Web App SPA]
+WEB --> API[ATS Backend API]
+API --> DB[(PostgreSQL)]
+API --> STORE[(Object Storage)]
+API --> QUEUE[(Queue)]
+API --> AI[AI Orchestrator]
+AI --> LLM[LLM Provider]
+API --> EXT[Integrations Connector]
+EXT --> JOB[Job Boards]
+EXT --> CAL[Email Calendar]
+

@@ -1,0 +1,10 @@
+﻿flowchart LR
+A[Recruiter] --> U1[Definir regla]
+D[Sistema ATS] --> U2[Evaluar trigger]
+U1 --> U2
+U2 --> U3[Mover etapa]
+U2 --> U4[Enviar comunicaciÃ³n]
+U2 --> U5[Crear tarea]
+U4 --> B[Email Calendar Service]
+U3 --> C[Candidato Pipeline]
+
